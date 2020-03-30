@@ -64,14 +64,16 @@ export default class Knapsack extends Component {
       { name: 'berenjena' },
       { name: 'calabaza' },
       { name: 'remolacha' },
-      { name: 'repollo' }
+      { name: 'repollo' },
+      { name: 'papaya' },
+      { name: 'pipian' }
     ].map((product) => {
       product.valor = Math.floor(Math.random() * 50) + 1;
       product.cantidad = Math.floor(Math.random() * 10) + 1;
       return product;
     });
     const numberOfProducts = Math.floor(Math.random() * 15) + 1;
-    const generatedProducts = [];
+    const generatedProducts = [{ name: 'fake', valor: 100, cantidad: 100 }];
     for (let index = 0; index < numberOfProducts; index++) {
       generatedProducts.push(
         productList
@@ -82,8 +84,9 @@ export default class Knapsack extends Component {
     this.setState({ productList: generatedProducts });
     // this.setState({
     //   productList: [
+    //     { name: 'fake', valor: 100, cantidad: 100 },
     //     { name: 'tomates', valor: 10, cantidad: 5 },
-    //     { name: 'lechuga', valor: 5, cantidad: 10 },
+    //     { name: 'lechuga', valor: 5, cantidad: 11 },
     //     { name: 'zanahoria', valor: 15, cantidad: 1 },
     //     { name: 'papa', valor: 6, cantidad: 4 }
     //   ]
@@ -94,15 +97,38 @@ export default class Knapsack extends Component {
     const { productList } = this.state;
     return productList.map((product, index) => {
       const { name, valor, cantidad } = product;
-      return (
-        <Package key={index} nombre={name} valor={valor} cantidad={cantidad} />
-      );
+      if (name !== 'fake') {
+        return (
+          <Package
+            key={index}
+            nombre={name}
+            valor={valor}
+            cantidad={cantidad}
+          />
+        );
+      }
     });
+  };
+
+  runRecursiveKnapsack = async () => {
+    const { productList, weight } = this.state;
+    this.setState({ startTime: performance.now() });
+    const resultado = await this.knapsackRecursive(
+      productList,
+      weight,
+      productList.length - 1,
+      ''
+    );
+    this.setState({ endTime: performance.now() });
+    return resultado;
   };
 
   calcularKnapsack = async (metodo) => {
     const resultado =
-      metodo === 'iterativo' ? await this.knapsackIterativo() : this.max(1, 2);
+      metodo === 'iterativo'
+        ? await this.knapsackIterativo()
+        : await this.runRecursiveKnapsack();
+
     swal.fire({
       icon: 'success',
       title: 'Resultados',
@@ -158,6 +184,30 @@ export default class Knapsack extends Component {
     return k[this.state.productList.length][this.state.weight];
   };
 
+  knapsackRecursive = (productList, weight, i, names) => {
+    if (weight === 0 || i === 0) {
+      return 0;
+    }
+    if (productList[i].cantidad > weight) {
+      return this.knapsackRecursive(productList, weight, i - 1, names);
+    } else {
+      let included =
+        productList[i].valor +
+        this.knapsackRecursive(
+          productList,
+          weight - productList[i].cantidad,
+          i - 1,
+          (names += productList[i].name)
+        );
+      let excluded = this.knapsackRecursive(productList, weight, i - 1, names);
+      return Math.max(included, excluded);
+    }
+  };
+
+  refreshPage = () => {
+    window.location.reload(false);
+  };
+
   render() {
     return (
       <>
@@ -192,7 +242,7 @@ export default class Knapsack extends Component {
               color="primary"
               variant="contained"
               onClick={() => {
-                console.log(this.calcularKnapsack('iterativo'));
+                this.calcularKnapsack('iterativo');
               }}
             >
               Correr Knapsack Iterativo
@@ -201,7 +251,7 @@ export default class Knapsack extends Component {
               color="primary"
               variant="contained"
               onClick={() => {
-                console.log(this.calcularKnapsack('recursivo'));
+                this.calcularKnapsack('recursivo');
               }}
             >
               Correr Knapsack Recursivo
@@ -210,11 +260,23 @@ export default class Knapsack extends Component {
               color="primary"
               variant="contained"
               onClick={() => {
-                console.log(this.generateProducts());
+                this.generateProducts();
               }}
             >
               Generar nuevos productos
             </Button>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => {
+                this.refreshPage();
+              }}
+            >
+              Reiniciar
+            </Button>
+          </Grid>
+          <Grid container justify="center">
+            <h1>Backpack weight: {this.state.weight}</h1>
           </Grid>
         </Container>
       </>
