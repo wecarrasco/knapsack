@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import swal from 'sweetalert2';
-import { Container, Grid, Button } from '@material-ui/core';
+import { Container, Grid, Button, AppBar, Typography } from '@material-ui/core';
 import Package from './package';
 
 export default class Knapsack extends Component {
@@ -79,15 +79,15 @@ export default class Knapsack extends Component {
           .pop()
       );
     }
-    // this.setState({ productList: generatedProducts });
-    this.setState({
-      productList: [
-        { name: 'tomates', valor: 10, cantidad: 5 },
-        { name: 'lechuga', valor: 5, cantidad: 10 },
-        { name: 'zanahoria', valor: 15, cantidad: 1 },
-        { name: 'papa', valor: 6, cantidad: 4 }
-      ]
-    });
+    this.setState({ productList: generatedProducts });
+    // this.setState({
+    //   productList: [
+    //     { name: 'tomates', valor: 10, cantidad: 5 },
+    //     { name: 'lechuga', valor: 5, cantidad: 10 },
+    //     { name: 'zanahoria', valor: 15, cantidad: 1 },
+    //     { name: 'papa', valor: 6, cantidad: 4 }
+    //   ]
+    // });
   };
 
   renderProducts = () => {
@@ -160,32 +160,64 @@ export default class Knapsack extends Component {
 
   render() {
     return (
-      <Container fixed>
-        <Grid container justify="space-around">
-          <Grid container>{this.renderProducts()}</Grid>
-          <Grid item>
-            <div className="backpack">
-              <div className="backpackpouch"></div>
-              <div className="minipouch"></div>
-              <div className="toppouch">
-                <div className="buckle one"></div>
-                <div className="buckle two"></div>
-                <div className="circle"></div>
-              </div>
-            </div>
-            <div className="toppouchflipped"></div>
-          </Grid>
-        </Grid>
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={() => {
-            console.log(this.calcularKnapsack('iterativo'));
+      <>
+        <div
+          style={{
+            backgroundColor: '#3f51b5',
+            color: '#fff',
+            padding: '1em 1em 1em 1em',
+            marginBottom: '5px'
           }}
         >
-          Correr Algoritmo
-        </Button>
-      </Container>
+          <h1>Knapsack</h1>
+        </div>
+        <Container fixed>
+          <Grid container justify="space-around">
+            <Grid container>{this.renderProducts()}</Grid>
+            <Grid item>
+              <div className="backpack">
+                <div className="backpackpouch"></div>
+                <div className="minipouch"></div>
+                <div className="toppouch">
+                  <div className="buckle one"></div>
+                  <div className="buckle two"></div>
+                  <div className="circle"></div>
+                </div>
+              </div>
+              <div className="toppouchflipped"></div>
+            </Grid>
+          </Grid>
+          <Grid container justify="space-evenly">
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => {
+                console.log(this.calcularKnapsack('iterativo'));
+              }}
+            >
+              Correr Knapsack Iterativo
+            </Button>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => {
+                console.log(this.calcularKnapsack('recursivo'));
+              }}
+            >
+              Correr Knapsack Recursivo
+            </Button>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => {
+                console.log(this.generateProducts());
+              }}
+            >
+              Generar nuevos productos
+            </Button>
+          </Grid>
+        </Container>
+      </>
     );
   }
 }
